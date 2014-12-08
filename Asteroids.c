@@ -37,8 +37,6 @@ Mix_Chunk* missile = NULL;
 //Soundtrack
 Mix_Chunk* soundtrack = NULL;
 
-int temp;
-
 bool init()
 {
     //Initialization flag
@@ -106,16 +104,21 @@ bool LoadMedia()
     debris = LoadTexture("img/debris.png", renderer);
     ship.image = LoadTexture("img/ship.png", renderer);
     splash = LoadTexture("img/splash.png", renderer);
+    InitShip(&ship);
+    if (!background || !debris || !ship.image || !splash)
+    {
+        printf("Failed to load texture image!\n");
+        success = false;
+    }
     engine = Mix_LoadMUS("sound/engine.wav");
     explosion = Mix_LoadWAV("sound/explosion.wav");
     missile = Mix_LoadWAV("sound/missile.wav");
     soundtrack = Mix_LoadWAV("sound/soundtrack.wav");
     Mix_Volume(-1, 20);
     Mix_VolumeMusic(20);
-    InitShip(&ship);
-    if (!background || !debris || !ship.image || !splash || !engine)
+    if (!engine || !explosion || !missile || !soundtrack)
     {
-        printf("Failed to load texture image!\n");
+        printf("Failed to load sounds!\n");
         success = false;
     }
     font = TTF_OpenFont("img/font.ttf", 28);
@@ -211,7 +214,7 @@ void DrawText()
 
     sprintf(&str, "Score: %d", settings.score);
     score = LoadFromRenderedText(str, font, renderer);
-    textRect.x = 630;
+    textRect.x = 660;
     textRect.w = score.w;
     SDL_RenderCopy(renderer, score.image, NULL, &textRect);
 }
@@ -342,7 +345,7 @@ int main(int argc, char* args[])
                     if (settings.lives <= 0)
                     {
                         Text gameOver = LoadFromRenderedText("GAME OVER!", font, renderer);
-                        SDL_Rect textRect = { 310, 150, gameOver.w, gameOver.h };
+                        SDL_Rect textRect = { 290, 150, gameOver.w+100, gameOver.h+20 };
                         SDL_RenderCopy(renderer, gameOver.image, NULL, &textRect);
                     }
                 }

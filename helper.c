@@ -175,7 +175,7 @@ void ProcessExplosions(Explosion explosions[10], SDL_Renderer* renderer)
 
 Text LoadFromRenderedText(char* text, TTF_Font* font, SDL_Renderer* renderer)
 {
-    SDL_Color textColor = { 192, 192, 192 };
+    SDL_Color textColor = { 150, 150, 150 };
     Text texture;
     //Render text surface
     SDL_Surface* textSurface = TTF_RenderText_Solid(font, text, textColor);
