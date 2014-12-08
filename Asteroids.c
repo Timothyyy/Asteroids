@@ -29,13 +29,13 @@ Asteroid asteroids[12];
 //Explosion textures array
 Explosion explosions[10];
 //Engine sound
-Mix_Music* engine = NULL;
+Mix_Chunk* engine = NULL;
 //Explosion sound
 Mix_Chunk* explosion = NULL;
 //Missile sound
 Mix_Chunk* missile = NULL;
 //Soundtrack
-Mix_Chunk* soundtrack = NULL;
+Mix_Music* soundtrack = NULL;
 
 bool init()
 {
@@ -110,10 +110,10 @@ bool LoadMedia()
         printf("Failed to load texture image!\n");
         success = false;
     }
-    engine = Mix_LoadMUS("sound/engine.wav");
+    engine = Mix_LoadWAV("sound/engine.wav");
     explosion = Mix_LoadWAV("sound/explosion.wav");
     missile = Mix_LoadWAV("sound/missile.wav");
-    soundtrack = Mix_LoadWAV("sound/soundtrack.wav");
+    soundtrack = Mix_LoadMUS("sound/soundtrack.wav");
     Mix_Volume(-1, 20);
     Mix_VolumeMusic(20);
     if (!engine || !explosion || !missile || !soundtrack)
@@ -184,6 +184,7 @@ bool EventNotQuit()
                 settings.started = true;
                 settings.lives = 3;
                 settings.score = 0;
+                Mix_PlayMusic(soundtrack, -1);
             }
         }
     }
@@ -292,6 +293,7 @@ int main(int argc, char* args[])
             int fps = 0;
             int sec = 0;
             int times = 0;
+            int channel = -1;
             SDL_Event e;
             while (EventNotQuit())
             {
@@ -302,18 +304,29 @@ int main(int argc, char* args[])
 
                 if (settings.started)
                 {
-                    Mix_PlayChannel(-1, soundtrack, -1);
                     UpdateShip(&ship);
                     SDL_Rect quad = { ship.x, ship.y, ship.w, ship.h };
                     int x = 0;
                     if (ship.trust)
                     {
                         x = 90;
-                        if (Mix_PlayingMusic() == 0)
-                            Mix_PlayMusic(engine, -1);
+                        if (channel == -1)
+                        {
+                            channel = Mix_PlayChannel(-1, engine, 0);
+                            printf("%d\n", channel);
+                        }
+                        //printf("%d\n", channel);
+                        /*if (Mix_PlayingMusic() == 0)
+                            Mix_PlayMusic(engine, -1);*/
                     }
-                    else
-                        Mix_HaltMusic();
+                    else 
+                    {
+                        if (channel != -1)
+                        {
+                            Mix_HaltChannel(channel);
+                            channel = -1;
+                        }
+                    }
                     SDL_Rect sprite = { x, 0, ship.w, ship.h };
                     SDL_RenderCopyEx(renderer, ship.image, &sprite, &quad, ship.degrees, NULL, SDL_FLIP_NONE);
                 
@@ -336,6 +349,7 @@ int main(int argc, char* args[])
                         settings.started = false;
                         GameOver(asteroids, missiles, &ship);
                         Mix_HaltMusic();
+                        Mix_HaltChannel(channel);
                     }
                 }
                 else
