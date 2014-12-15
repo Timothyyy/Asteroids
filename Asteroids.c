@@ -175,7 +175,7 @@ bool EventNotQuit()
                 default: break;
             }
         }
-        else if (e.type == SDL_MOUSEBUTTONUP)
+        else if (e.type == SDL_MOUSEBUTTONUP && !settings.started)
         {
             int x, y;
             SDL_GetMouseState(&x, &y);
